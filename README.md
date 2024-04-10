@@ -1,24 +1,40 @@
-# Nginx WebDav Server (built from the official Nginx/Debian-Buster docker image)
+# WebDav Server ( Nginx )
 
-Incredibly secure, fast and light WebDav Server, built from Nginx official image - bare minimum with no bells and whistles.
+from `nginx:1.22.1-alpine`
 
-## How to use this image
-```console
-$ docker run --name keepass-webdav -p 80:80 -v /path/to/your/keepass/files/:/media/data -d maltokyo/docker-nginx-webdav
+
+## ENV
+
+|  |  |
+| - | - |
+| Served Directory | `/media/data`                        |
+| HTTP Port        | `80`                                 |
+| HTTPS Port       | `443`                                |
+| Auth Type        | `Basic`                              |
+| Auth Username    | `webdav`                             |
+| Auth Password    | `webdav`                             |
+| SSL Path         | cert `/cert.pem`; key `/privkey.pem` |
+
+## Usage
+
+### http
+```sh
+docker run --restart always --name webdav --publish 80:80 \
+	-e USERNAME=webdav -e PASSWORD=webdav \
+	-v /data/dav:/media/data \
+	-d haierspi/docker-nginx-webdav-ssl:latest
 ```
 
-Or use the docker-compose file included in this repository.
-
-No built-in TLS support. Reverse proxy with TLS recommended
-
-## Volumes
-- `/media/data` - served directory
-
-## Authentication
-To restrict access to only authorized users (recommended), you can define two environment variables: `$USERNAME` and `$PASSWORD`
-```console
-$ docker run --name webdav -p 80:80 -v /path/to/your/shared/files/:/media/data -e USERNAME=webdav -e PASSWORD=webdav -d maltokyo/docker-nginx-webdav
-
+### https
+```sh
+docker run --restart always --name webdav --publish 443:443 \
+	-e USERNAME=webdav -e PASSWORD=webdav \
+	-v /data/dav:/media/data \
+	-v /data/dav-conf/privkey.pem:/privkey.pem -v /data/dav-conf/cert.pem:/cert.pem \
+	-d haierspi/docker-nginx-webdav-ssl:latest
 ```
 
-(Inspired from https://github.com/jbbodart/alpine-nginx-webdav - but "upgraded" to debian-buster image with all WebDav functionality enabled to work perfectly with MacOS OSX and Windows 10)
+## Github
+
+https://github.com/haierspi/docker-nginx-webdav
+
